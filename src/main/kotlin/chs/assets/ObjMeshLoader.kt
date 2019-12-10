@@ -2,6 +2,7 @@ package chs.assets
 
 import chs.AssetLoadingException
 import chs.Assets
+import chs.Lookahead
 import chs.Mesh
 import java.io.InputStream
 import java.io.Reader
@@ -15,6 +16,28 @@ class ObjMeshLoader: Assets.Loader {
 
     private data class FaceIndex(val pos: Int, val texCoord: Int, val normal: Int)
     private data class Vertex(val pos: Point, val texCoord: Point, val normal: Point)
+
+    /**
+     * An object mesh, consisting of packed vertices, indices, texture coordinates and normals.
+     */
+    class ObjMesh(
+        /**
+         * Packed vertex coordinates in triplets of floats.
+         */
+        val vpack: FloatArray,
+        /**
+         * Packed indices in single integers.
+         */
+        val ipack: IntArray,
+        /**
+         * Packed texture coordinates in pairs of floats.
+         */
+        val tpack: FloatArray,
+        /**
+         * Packed normal coordinates in triplets of floats.
+         */
+        val npack: FloatArray
+    )
 
     private class State {
         val points = ArrayList<Point>()
@@ -38,13 +61,19 @@ class ObjMeshLoader: Assets.Loader {
         return location.endsWith(".obj")
     }
 
-    override fun load(stream: InputStream) = load(stream.reader())
-
     /**
      *  Loads a mesh from the specified reader.
      */
-    fun load(reader: Reader): Mesh {
-        with(State()) {
+    override fun load(stream: InputStream): Mesh {
+        val objmesh = parse(stream.reader())
+        return Mesh(objmesh.vpack, objmesh.ipack, objmesh.tpack, objmesh.npack)
+    }
+
+    /**
+     *  Parses a mesh from the specified reader.
+     */
+    fun parse(reader: Reader): ObjMesh {
+        return with(State()) {
             read(reader)
             val combos = ArrayList<Vertex>()
             val ipack = IntArray(indices.size)
@@ -97,29 +126,40 @@ class ObjMeshLoader: Assets.Loader {
                 tpack[2 * a + 0] = textureCoords[a].x
                 tpack[2 * a + 1] = textureCoords[a].y
             }*/
-            return Mesh(vpack, ipack, tpack, npack)
+            ObjMesh(vpack, ipack, tpack, npack)
         }
+    }
+
+
+
+    private fun Lookahead.readNextWord(): String? {
+        this.readWhile { it.isWhitespace() && it != '\n' }
+        val n = this.next()
+        if(n == '\n') return "\n"
+        else pushback(n)
+        val w = this.readWhile { !it.isWhitespace() }
+        return if(w.isEmpty()) null else w
     }
 
     private fun State.read(reader: Reader) {
         val varray = FloatArray(4)
         var vindex = 0
-        val tokens = Tokenizer(reader)
+        val tokens = Lookahead(reader)
         while (true) {
             val word = tokens.readNextWord() ?: break
             if(word == "\n") continue
             when (word) {
                 "v" -> {
-                    //print("v")
+                    print("v")
                     while (vindex < 4) {
                         val f = tokens.readNextWord()?.toFloatOrNull() ?: break
                         varray[vindex++] = f
-                        //print(" $f")
+                        print(" $f")
                     }
                     points.add(Point(varray[0], varray[1], varray[2]))
                     vindex = 0
                     varray.fill(0f)
-                    //println()
+                    println()
                 }
                 "vn" -> {
                     //print("vn")

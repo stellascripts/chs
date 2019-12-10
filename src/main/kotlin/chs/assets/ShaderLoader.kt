@@ -25,11 +25,11 @@ class ShaderLoader : Assets.ComplexLoader {
         val vert: String
         val frag: String
         if(extension == "vert") {
-            vert = Assets.read(location).readText()
-            frag = Assets.read(location.removeSuffix("vert")+"frag").readText()
+            vert = Assets.read(location).use{ it.readText() }
+            frag = Assets.read(location.removeSuffix("vert")+"frag").use { it.readText() }
         } else {
-            vert = Assets.read(location.removeSuffix("frag")+"vert").readText()
-            frag = Assets.read(location).readText()
+            vert = Assets.read(location.removeSuffix("frag")+"vert").use { it.readText() }
+            frag = Assets.read(location).use { it.readText() }
         }
         return Shader(vert, frag)
     }

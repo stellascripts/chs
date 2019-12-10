@@ -83,7 +83,7 @@ class Window(width: Int, height: Int, title: String): AutoCloseable {
         glfwShowWindow(ptr)
 
         GL.createCapabilities()
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
 
         val renderer = glGetString(GL_RENDERER)
         val version = glGetString(GL_VERSION)
@@ -94,6 +94,7 @@ class Window(width: Int, height: Int, title: String): AutoCloseable {
         glEnable(GL_CULL_FACE)
         glCullFace(GL_BACK)
         glClearDepth(1.0)
+        glDepthFunc(GL_LEQUAL)
     }
 
     /**

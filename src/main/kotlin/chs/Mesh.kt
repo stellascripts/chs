@@ -8,9 +8,13 @@ import java.nio.IntBuffer
 
 /**
  * OpenGL drawable mesh data.
+ * @param points An array of floating point values representing 3-component vertex positions.
+ * @param indices An array of integer index values.
+ * @param texCoords An array of floating point values representing 2-component texture coordinates.
+ * @param normals An array of floating point values representing 3-component normal vectors.
  */
-class Mesh(vertex: FloatArray, intArray: IntArray, texCoord: FloatArray,
-           normal: FloatArray): Renderable {
+class Mesh(points: FloatArray, indices: IntArray, texCoords: FloatArray,
+           normals: FloatArray): Renderable {
     private val index: IntBuffer
     private var vao: Int = 0
     private var vboIndex = 0
@@ -23,15 +27,15 @@ class Mesh(vertex: FloatArray, intArray: IntArray, texCoord: FloatArray,
     init {
         vboPosition = glGenBuffers()
         glBindBuffer(GL_ARRAY_BUFFER, vboPosition)
-        glBufferData(GL_ARRAY_BUFFER, vertex, GL_STATIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, points, GL_STATIC_DRAW)
 
         vboTexCoords = glGenBuffers()
         glBindBuffer(GL_ARRAY_BUFFER, vboTexCoords)
-        glBufferData(GL_ARRAY_BUFFER, texCoord, GL_STATIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, texCoords, GL_STATIC_DRAW)
 
         vboNormal = glGenBuffers()
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboNormal)
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, normal, GL_STATIC_DRAW)
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, normals, GL_STATIC_DRAW)
 
         vao = glGenVertexArrays()
         glBindVertexArray(vao)
@@ -48,7 +52,7 @@ class Mesh(vertex: FloatArray, intArray: IntArray, texCoord: FloatArray,
         glBindBuffer(GL15.GL_ARRAY_BUFFER, vboNormal)
         glVertexAttribPointer(2,3, GL_FLOAT, false, 0, NULL)
 
-        index = MemoryUtil.memCallocInt(intArray.size).put(intArray)
+        index = MemoryUtil.memCallocInt(indices.size).put(indices)
         index.flip()
 
         vboIndex = glGenBuffers()

@@ -1,22 +1,33 @@
 package chs
 
-import org.joml.Matrix3f
 import org.joml.Matrix4f
+import org.joml.Matrix4fc
 import org.joml.Vector3f
 import org.joml.Vector3fc
-import java.lang.IllegalArgumentException
 
 /**
  * Object responsible for the projection and view matrix of a scene.
+ * @param fieldOfView the angle from the center of the camera to the edge, in degrees. Defaults to 35.
+ * @param aspectRatio the aspect ratio of the camera, usually the same as that of the screen. Defaults to 4/3.
+ * @param nearPlane the nearest distance to the camera. Must be > 0. Defaults to 0.1.
+ * @param farPlane the farthest distance from the camera. Must be >0. Defaults to 100.
  */
-class Camera {
-    private val projection = Matrix4f().identity()
-    private val view: Matrix4f = Matrix4f().identity()
-    private val position = Vector3f()
+class Camera(fieldOfView: Float = 35f, aspectRatio: Float = 4f/3f, nearPlane: Float = 0.1f, farPlane: Float = 100f) {
+    private val projection = Matrix4f().setPerspective(fieldOfView, aspectRatio, nearPlane, farPlane)
+    private val view: Matrix4f = Matrix4f().setLookAt(V_ZERO, NZ_AXIS, Y_AXIS)
+    private val position = Vector3f(0f)
     private val aim = Vector3f(NZ_AXIS)
     private var aimIsDirection = true
     private val upAxis = Vector3f().set(Y_AXIS)
-    //private lateinit var complete: FloatBuffer
+
+    /**
+     * Projection matrix used by this camera.
+     */
+    val projectionMatrix: Matrix4fc get() = projection
+    /**
+     * View matrix used by this camera.
+     */
+    val viewMatrix: Matrix4fc get() = view
 
     /**
      * Aims the camera along a particular direction.
@@ -128,19 +139,5 @@ class Camera {
         if(nearPlane <= 0f) throw IllegalArgumentException("Near plane may not be set to zero or a negative value.")
         if(farPlane <= 0f) throw IllegalArgumentException("Far plane may not be set to zero or a negative value.")
         projection.setPerspective(fieldOfView * DEG_TO_RAD, aspectRatio, nearPlane, farPlane)
-    }
-
-    /**
-     * Computes the matrices for a particular shader and sets them as uniforms.
-     * A preliminary step in drawing objects in a scene. Usually should not be called externally.
-     */
-    fun computeUniforms(shader: Shader, world: Transform) {
-        val w = world.writeTo(Matrix4f())
-        val normals = Matrix3f().set(w).transpose().invert()
-
-        shader.set("W", Uniforms.Matrix4f, w)
-        shader.set("V", Uniforms.Matrix4f, view)
-        shader.set("P", Uniforms.Matrix4f, projection)
-        shader.set("W_N", Uniforms.Matrix3f, normals)
     }
 }

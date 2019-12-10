@@ -11,5 +11,6 @@ import chs.Assets
 fun Assets.useDefaults() {
     useLocator(FileTreeLocator("assets"))
     useLoader(ObjMeshLoader())
-    Assets.useComplexLoader(ShaderLoader())
+    useComplexLoader(ShaderLoader())
+    useLoader(ChsMaterialLoader())
 }
