@@ -1,6 +1,7 @@
 package chs.encoding
 
 import java.io.Reader
+import java.util.*
 
 /**
  * Exception while parsing configuration files.
@@ -17,6 +18,7 @@ class ConfigException(msg: String): RuntimeException(msg)
 fun Reader.parseChsConfig(): MessageTable {
     val root = MessageTable()
     var table = root
+    val stack = Stack<MessageTable>()
     forEachLine {
         if(it.isBlank()) return@forEachLine
         else if(it.startsWith("==")) {
@@ -25,14 +27,20 @@ fun Reader.parseChsConfig(): MessageTable {
         }
         else if(it.startsWith("::")) {
             val split = it.indexOf(':', 2)
-            if(split == -1) throw ConfigException("Incomplete table header: $it")
+            if (split == -1) throw ConfigException("Incomplete table header: $it")
             val type = it.substring(2, split).trim().toLowerCase()
-            val name = if(it[split+1] == ':') "" else it.substring(split+1, it.lastIndex - 1).trim().toLowerCase()
+            val name = if (it[split + 1] == ':') "" else it.substring(split + 1, it.lastIndex - 1).trim().toLowerCase()
 
             table = root.createTable(type)
-            if(name.isNotEmpty()) {
+            if (name.isNotEmpty()) {
                 table = table.createTable(name)
             }
+        } else if(it.startsWith("<<")) {
+            val name = it.substring(2).trim()
+            stack.push(table)
+            table = table.createTable(name)
+        } else if(it.startsWith(">>")) {
+            table = stack.pop()
         } else {
             val split = it.indexOf(':', 0)
             if(split == -1) throw ConfigException("Incomplete key-value line: $it")

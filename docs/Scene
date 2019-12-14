@@ -1,0 +1,20 @@
+1. Create and open window.
+    Window()
+        Window.open()
+
+2. Setup scene.
+   Asset.load*()
+   Camera()
+      createProjection()
+   Scene()
+    Scene.addPointLight()
+    Scene.addDirectionalLight()
+    Scene.setAmbientColor()
+    Scene.addObject()
+
+3. Loop window
+    Window.loop()
+        Scene.render(camera)
+
+4. Terminate
+    Window.terminate()

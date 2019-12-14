@@ -14,7 +14,7 @@ import java.nio.IntBuffer
  * @param normals An array of floating point values representing 3-component normal vectors.
  */
 class Mesh(points: FloatArray, indices: IntArray, texCoords: FloatArray,
-           normals: FloatArray): Renderable {
+           normals: FloatArray) {
     private val index: IntBuffer
     private var vao: Int = 0
     private var vboIndex = 0
@@ -60,7 +60,7 @@ class Mesh(points: FloatArray, indices: IntArray, texCoords: FloatArray,
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, index, GL_STATIC_DRAW)
     }
 
-    override fun draw() {
+    fun draw() {
         if(deleted) throw IllegalStateException("Cannot render deleted mesh.")
         //glDrawArrays(GL_TRIANGLES, 0, vertex.size/3)
         glBindVertexArray(vao)
@@ -69,7 +69,7 @@ class Mesh(points: FloatArray, indices: IntArray, texCoords: FloatArray,
     }
 
 
-    override fun delete() {
+    fun delete() {
         synchronized(this) {
             if (deleted) return
             deleted = true

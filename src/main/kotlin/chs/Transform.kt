@@ -29,6 +29,13 @@ class Transform {
         return m
     }
 
+    fun appendTo(m: Matrix4f): Matrix4f {
+        m.translate(position)
+        m.rotate(rotation)
+        m.scale(anisotropicScale)
+        return m
+    }
+
     /**
      * Writes the inverse of this transformation to a [Matrix4f] such that transforming a vector by the matrix
      * undoes this transformation.
@@ -54,6 +61,8 @@ class Transform {
     fun applyDirection(v: Vector3f): Vector3f {
         return v.mul(anisotropicScale).rotate(rotation)
     }
+
+    override fun toString(): String = "T: $position R: $rotation S: $anisotropicScale"
 }
 
 /**

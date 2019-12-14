@@ -19,15 +19,16 @@ object ExampleApp {
         val scene = Scene()
 
         //set up some lights
-        scene.setAmbientColor(1f, 1f, 1f, 0.18f)
-        scene.addDirectionalLight(Vector3f(1f, -1f, 0f), Color3(1f, 1f, 1f), 2f)
-        scene.addPointLight(Vector3f(0f, 5f, 0f), Color3(1f, 1f, 0f), 25f)
-        scene.addPointLight(Vector3f(5f, 0f, 0f), Color3(1f, 0f, 1f), 25f)
-        scene.addPointLight(Vector3f(0f, 0f, 5f), Color3(0f, 1f, 1f), 25f)
+        with(scene.lighting) {
+            setAmbientColor(1f, 1f, 1f, 0.18f)
+            addDirectionalLight(Vector3f(1f, -1f, 0f), Color3(1f, 1f, 1f), 2f)
+            addPointLight(Vector3f(0f, 5f, 0f), Color3(1f, 1f, 0f), 25f)
+            addPointLight(Vector3f(5f, 0f, 0f), Color3(1f, 0f, 1f), 25f)
+            addPointLight(Vector3f(0f, 0f, 5f), Color3(0f, 1f, 1f), 25f)
+        }
 
         //create a camera and have it look at the center of the scene
-        val camera = Camera()
-        camera.createProjection(
+        val camera = Camera(
             45f,
             4f / 3f,
             1f, 20f
@@ -42,15 +43,15 @@ object ExampleApp {
         val sphereMesh = Assets.load<Mesh>("sphere.obj")
 
         //make some spheres
-        val sphere = scene.addObject(sphereMesh, material)
+        val sphere = scene.addObject(sphereMesh::draw, material)
         sphere.transform.position.add(2f,1f,0f)
 
-        val sphere2 = scene.addObject(sphereMesh, material)
+        val sphere2 = scene.addObject(sphereMesh::draw, material)
         sphere2.transform.position.add(0f, 0f, 2f)
         sphere2.transform.rotation.rotateZ(90f* DEG_TO_RAD)
 
         //a cube
-        val cube = scene.addObject(Assets.load<Mesh>("cube.obj"), material)
+        val cube = scene.addObject(Assets.load<Mesh>("cube.obj")::draw, material)
         cube.transform.position.add(-1f, 1f, 0f)
         cube.transform.rotation.rotateX(45f * DEG_TO_RAD)
         cube.transform.rotation.rotateZ(45f * DEG_TO_RAD)

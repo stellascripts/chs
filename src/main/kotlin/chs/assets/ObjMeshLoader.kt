@@ -20,7 +20,7 @@ class ObjMeshLoader: Assets.Loader {
     /**
      * An object mesh, consisting of packed vertices, indices, texture coordinates and normals.
      */
-    class ObjMesh(
+    private class ObjMesh(
         /**
          * Packed vertex coordinates in triplets of floats.
          */
@@ -72,7 +72,7 @@ class ObjMeshLoader: Assets.Loader {
     /**
      *  Parses a mesh from the specified reader.
      */
-    fun parse(reader: Reader): ObjMesh {
+    private fun parse(reader: Reader): ObjMesh {
         return with(State()) {
             read(reader)
             val combos = ArrayList<Vertex>()

@@ -78,6 +78,18 @@ object Assets {
     }
 
     /**
+     * Locates an asset and returns it as a stream of bytes.
+     * To be used in complex loaders with byte formats.
+     * @param location The location of the asset to be loaded.
+     * @throws AssetNotFoundException if the asset could not be found by any of the registered locators.
+     * @throws AssetLoadingException if there was an otherwise unspecified error while locating the asset.
+     */
+    fun stream(location: String): InputStream {
+        val stream = open(location) ?: throw AssetNotFoundException("Could not locate: $location")
+        return stream
+    }
+
+    /**
      * Loads an asset of the specified type.
      * @return An asset object of type T.
      * @param T The type of object to be returned.

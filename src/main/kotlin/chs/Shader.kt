@@ -12,6 +12,17 @@ import java.lang.IllegalStateException
  * @throws AssetLoadingException if the provided shader code contains GLSL errors.
  */
 class Shader(vertexProgram: String, fragmentProgram: String) {
+    companion object {
+        val ATTRIBUTE_LOCATIONS = listOf(
+            "POSITION",
+            "NORMAL",
+            "TANGENT",
+            "TEXCOORD_0",
+            "TEXCOORD_1",
+            "COLOR_0"
+        ).mapIndexed { i, s -> s to i }.toMap()
+    }
+
     private var program: Int = 0
     private var deleted = false
 
@@ -38,8 +49,11 @@ class Shader(vertexProgram: String, fragmentProgram: String) {
 
         //bind locations
         glBindAttribLocation(program, 0, "in_position")
-        glBindAttribLocation(program, 1, "in_tex_coords")
-        glBindAttribLocation(program, 2, "in_normal")
+        glBindAttribLocation(program, 1, "in_normal")
+        glBindAttribLocation(program, 2, "in_tangent")
+        glBindAttribLocation(program, 3, "in_tex_coords")
+        glBindAttribLocation(program, 4, "in_tex_coords_1")
+        glBindAttribLocation(program, 5, "in_color")
 
         glLinkProgram(program)
         if (glGetProgrami(program, GL_LINK_STATUS) != GL_TRUE) {

@@ -24,6 +24,7 @@ class ChsMaterialLoader: Assets.Loader {
         val root = stream.reader().use { it.parseChsConfig() }
         val material = RenderMaterial()
         val passes = root.tableOf("pass")?:throw AssetLoadingException("No passes in material file.")
+        val shaders = HashMap<String, Shader>()
         passes.tableIterate { passName, _, table ->
             if(table == null) return@tableIterate
 
@@ -31,9 +32,11 @@ class ChsMaterialLoader: Assets.Loader {
             val vertexFile = table.expect("vertex file", passName)
             val fragmentFile = table.expect("fragment file", passName)
 
-            val vertex = Assets.read(vertexFile).use { it.readText() }
-            val fragment = Assets.read(fragmentFile).use { it.readText() }
-            val shader = Shader(vertex, fragment)
+            val shader = shaders.getOrPut("$vertexFile $fragmentFile") {
+                val vertex = Assets.read(vertexFile).use { it.readText() }
+                val fragment = Assets.read(fragmentFile).use { it.readText() }
+                Shader(vertex, fragment)
+            }
 
             val phase = table.intoMap(RenderPhase.parse, "phase", passName)
             val pass = RenderPass(shader)
@@ -42,7 +45,7 @@ class ChsMaterialLoader: Assets.Loader {
             //pass.clearDepth = table.valueOf("clear depth")?.toDoubleOrNull()
             //pass.clearColor = table.valueOf("clear color")?.toColor()
             pass.blendMode = table.intoMap(BlendMode.parse, "blend mode", passName)
-            pass.testDepth = table.valueOf("test depth?")?.toBoolean()?:true
+            pass.testDepth = table.valueOf("depth")?.let { DepthMode.parse[it] }
             pass.writeDepth = table.valueOf("write depth?")?.toBoolean()?:true
             pass.writeColor = table.valueOf("write color?")?.toBoolean()?:true
             pass.perLight = table.valueOf("per light?")?.toBoolean()?:false

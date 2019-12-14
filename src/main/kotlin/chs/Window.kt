@@ -3,6 +3,8 @@ package chs
 import org.lwjgl.glfw.Callbacks.glfwFreeCallbacks
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL
+import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL30
 import org.lwjgl.opengl.GL30.*
 import org.lwjgl.system.MemoryUtil
 import org.lwjgl.system.MemoryUtil.memFree
@@ -93,7 +95,6 @@ class Window(width: Int, height: Int, title: String): AutoCloseable {
         glEnable(GL_BLEND)
         glEnable(GL_CULL_FACE)
         glCullFace(GL_BACK)
-        glClearDepth(1.0)
         glDepthFunc(GL_LEQUAL)
     }
 
@@ -105,7 +106,7 @@ class Window(width: Int, height: Int, title: String): AutoCloseable {
         while (!glfwWindowShouldClose(ptr)) {
             glDepthMask(true)
             glColorMask(true, true, true, true)
-            glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+            glClear(GL_DEPTH_BUFFER_BIT or GL_COLOR_BUFFER_BIT)
 
             render()
 

@@ -123,6 +123,8 @@ class Camera(fieldOfView: Float = 35f, aspectRatio: Float = 4f/3f, nearPlane: Fl
         upAxis.set(axis).normalize()
     }
 
+    fun getPosition(): Vector3fc = position
+
     private fun computeView() {
         view.setLookAt(position, aim, upAxis)
     }

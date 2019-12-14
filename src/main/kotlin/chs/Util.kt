@@ -25,9 +25,19 @@ const val PIf: Float = kotlin.math.PI.toFloat()
 const val DEG_TO_RAD = PIf / 180f
 
 //memory stack usage shortcut
-internal inline fun <T> withStack(f: (MemoryStack)->T): T {
+/*internal inline fun <T> withStack(f: (MemoryStack)->T): T {
     return MemoryStack.stackPush().use { stack ->
         f(stack)
+    }
+}*/
+
+internal inline fun <T> withStack(f: (MemoryStack)->T):T {
+    val stack = MemoryStack.stackGet()
+    val ptr = stack.pointer
+    try {
+        return f(stack)
+    } finally {
+        stack.pointer = ptr
     }
 }
 
@@ -77,6 +87,9 @@ val V_ZERO: Vector3fc = Vector3f(0f,0f,0f)
  */
 @API
 val V4_ZERO: Vector4fc = Vector4f(0f,0f,0f,0f)
+
+@API
+val V4_ONE: Vector4f = Vector4f(1f,1f,1f,1f)
 
 /**
  * A very small float value, used in approximation functions.

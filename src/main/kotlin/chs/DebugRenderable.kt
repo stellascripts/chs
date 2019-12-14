@@ -5,7 +5,7 @@ import org.lwjgl.opengl.GL30.*
 import java.lang.IllegalStateException
 
 @API
-private class PointCluster(vararg positions: Vector3fc): Renderable {
+private class PointCluster(vararg positions: Vector3fc) {
     private var vbo: Int = -1
     private var vao: Int = -1
     private var size = positions.size
@@ -30,18 +30,9 @@ private class PointCluster(vararg positions: Vector3fc): Renderable {
             GL_FLOAT,false,0,NULL)
     }
 
-    override fun draw() {
+    fun draw() {
         if(deleted) throw IllegalStateException("Cannot render deleted points.")
         glBindVertexArray(vao)
         glDrawArrays(GL_POINTS, 0, size)
-    }
-
-    override fun delete() {
-        synchronized(this) {
-            if (deleted) return
-            deleted = true
-        }
-        glDeleteBuffers(vbo)
-        glDeleteVertexArrays(vao)
     }
 }

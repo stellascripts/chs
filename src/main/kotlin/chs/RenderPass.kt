@@ -1,8 +1,8 @@
 package chs
 
 import org.joml.Matrix3f
-import org.joml.Matrix4f
 import org.joml.Matrix4fc
+import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL14.*
 import java.util.*
 
@@ -28,7 +28,7 @@ enum class BlendMode(
      */
     Alpha(GL_FUNC_ADD, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    internal fun use() {
+    fun use() {
         glBlendEquation(mode)
         glBlendFunc(src, dst)
     }
@@ -62,6 +62,25 @@ enum class RenderPhase {
     }
 }
 
+enum class DepthMode(val const: Int) {
+    Less(GL_LESS),
+    Less_Or_Equal(GL_LEQUAL),
+    Equal(GL_EQUAL),
+    Not_Equal(GL_NOTEQUAL),
+    Greater_Or_Equal(GL_GEQUAL),
+    Greater(GL_GREATER),
+    Never(GL_NEVER),
+    Always(GL_ALWAYS);
+
+    fun set() {
+        GL11.glDepthFunc(const)
+    }
+
+    companion object {
+        internal val parse = values().map { it.name.toLowerCase() to it }.toMap()
+    }
+}
+
 /**
  * Contains the list of shaders and rendering settings used for a particular set of objects.
  */
@@ -75,18 +94,6 @@ class RenderMaterial {
     fun passes(phase: RenderPhase): List<RenderPass> =
         if(!deleted) passes[phase.ordinal]
         else throw IllegalStateException("Render Material cannot be used after deletion.")
-
-    /**
-     * Deletes the RenderMaterial, freeing its resources.
-     */
-    fun delete() {
-        for(phase in passes) {
-            for(pass in phase) {
-                pass.shader.delete()
-            }
-        }
-        deleted = true
-    }
 }
 
 /**
@@ -104,11 +111,12 @@ class RenderPass(
     /**
      * True if the depth buffer is tested against when drawing, false otherwise.
      */
-    var testDepth: Boolean = true,
+    var testDepth: DepthMode? = null,
     /**
      * True if the pass writes depth information.
      */
     var writeDepth: Boolean = true,
+
     /**
      * True if the pass writes color information.
      */
@@ -121,19 +129,19 @@ class RenderPass(
     /**
      * Called by the [Scene] when rendering the object.
      */
-    internal fun use(world: Transform, view: Matrix4fc, projection: Matrix4fc) {
+    @PublishedApi internal fun use(worldMatrix: Matrix4fc, camera: Camera) {
         blendMode.use()
-        if (testDepth) glEnable(GL_DEPTH_TEST)
-        else glDisable(GL_DEPTH_TEST)
+        if (testDepth != null) testDepth!!.set()
+        else glDepthFunc(GL_ALWAYS)
         glDepthMask(writeDepth)
         glColorMask(writeColor, writeColor, writeColor, writeColor)
 
-        val w = world.writeTo(Matrix4f())
-        val normals = Matrix3f().set(w).transpose().invert()
+        val normals = Matrix3f().set(worldMatrix).transpose().invert()
 
-        shader.set("W", Uniforms.Matrix4f, w)
-        shader.set("V", Uniforms.Matrix4f, view)
-        shader.set("P", Uniforms.Matrix4f, projection)
+        shader.set("W", Uniforms.Matrix4f, worldMatrix)
+        shader.set("V", Uniforms.Matrix4f, camera.viewMatrix)
+        shader.set("P", Uniforms.Matrix4f, camera.projectionMatrix)
         shader.set("W_N", Uniforms.Matrix3f, normals)
+        shader.set("in_view_position", Uniforms.Vector3f, camera.getPosition())
     }
 }

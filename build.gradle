@@ -19,6 +19,7 @@ dependencies {
     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.3.2"
 
     api "org.joml:joml:1.9.17"
+    api "com.googlecode.json-simple:json-simple:1.1.1"
     
     implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
 

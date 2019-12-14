@@ -1,6 +1,7 @@
 package chs.assets
 
 import chs.Assets
+import chs.gltf.GLTFLoader
 
 /**
  * Sets up default asset loaders and locators, which includes:
